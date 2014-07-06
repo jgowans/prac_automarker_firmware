@@ -8,13 +8,17 @@ ASFLAGS = -mcpu=cortex-m0 -mthumb -g
 
 LD = arm-none-eabi-ld
 LINKER_FILE = stm32f0_linker.ld
-LDFLAGS = -T $(LINKER_FILE) -nostartfiles
+LDFLAGS = -T $(LINKER_FILE) \
+	  -nostartfiles \
+	  --specs=nano.specs \
+	  -u _printf_float
 
 OBJS = \
        main.o \
        startup_stm32f051.o \
        system_stm32f0xx.o \
-       serial_terminal.o
+       serial_terminal.o \
+       syscalls.o
 
 main.elf: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o main.elf $(OBJS)
@@ -23,6 +27,7 @@ main.o: main.c serial_terminal.c serial_terminal.h
 serial_terminal.o: serial_terminal.c serial_terminal.h
 system_stm32f0xx.o: system_stm32f0xx.c
 startup_stm32f051.o: startup_stm32f051.s
+syscalls.o: syscalls.c
 
 clean:
 	$(RM) *.o *.elf *.bin

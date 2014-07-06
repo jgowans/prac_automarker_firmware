@@ -101,14 +101,13 @@ SECTIONS
     } > RAM
  
 	/* Remove information from the standard libraries */
-    /* commenting the following out as I don't know what they do and they seem to break compile - JG */
-	/*
+	
 	/DISCARD/ :
     {
         libc.a ( * )
         libm.a ( * )
         libgcc.a ( * )
-    }*/
+    }
  
     .ARM.attributes 0 : { *(.ARM.attributes) }
 }
