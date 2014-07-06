@@ -24,23 +24,27 @@ void serial_terminal_init(void) {
   // BRR = fclk / baud = fclk / 115200
   SystemCoreClockUpdate();
   USART1->BRR = SystemCoreClock/115200;
-  // enable with UE in CR1
-  USART1->CR1 |= USART_CR1_UE;
-  USART1->CR1 |= USART_CR1_RE;
-  USART1->CR1 |= USART_CR1_TE;
+  USART1->CR1 |= USART_CR1_RE; // receive enable
+  USART1->CR1 |= USART_CR1_RXNEIE; // receive not empty interrupt enable
+  USART1->CR1 |= USART_CR1_TE; // transmit enable
+  USART1->CR1 |= USART_CR1_UE; // usart enable
+
+  NVIC_EnableIRQ(USART1_IRQn);
 }
 
 void USART1_IRQHandler(void) {
   static uint8_t rx_buffer[BUFFER_SIZE];
   static uint32_t buffer_pointer = 0;
   
-  // ack the interrput
-
+  // ack the interrput by reading the received data
   uint8_t received_char = USART1->RDR;
-  if (received_char = 10) { //"Enter"
+  if (received_char = '\n') { //"Enter"
+    rx_buffer[buffer_pointer] = 0; // finalise the string by terminating it with a 0
     process_command(rx_buffer);
+    buffer_pointer = 0; // new string to buffer
+  } else { // new char arrived. Add it to the buffer
+    rx_buffer[buffer_pointer++] = received_char;
   }
-  
 }
 
 static void process_command(uint8_t *rx_buffer) {
