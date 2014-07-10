@@ -23,12 +23,17 @@ int _lseek(int file, int ptr, int dir) {
   return 0;
 }
 
-int _read(int file, char *ptr, int len) {
-  return 0;
+int _read(int file, char *buf, int len) {
+  int i = 0;
+  while(i < 1) {
+    while((USART1->ISR & USART_ISR_RXNE) == 0); // hange while receive IS empty
+    buf[i++] = USART1->RDR;
+  }
+  return len;
 }
 
 
-int _write(int file, char *ptr, int len) {
+int _write(int file, const char *ptr, int len) {
   int todo;
 
   for (todo = 0; todo < len; todo++) {
@@ -40,15 +45,16 @@ int _write(int file, char *ptr, int len) {
 
 void *_sbrk(int incr) {
   extern char _ebss;           /* Defined by the linker */
-  extern char _stack_end;
+  extern char _heap_end;
+  extern char _heap_start;
   static char *heap_end;
   char *prev_heap_end;
 
   if (heap_end == 0) {
-    heap_end = &_ebss;
+    heap_end = &_heap_start;
   }
   prev_heap_end = heap_end;
-  if (heap_end + incr >= &_stack_end) {
+  if (heap_end + incr >= &_heap_end) {
     _write (1, "Heap and stack collision\n", 25);
     for(;;);
   }

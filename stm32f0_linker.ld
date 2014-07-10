@@ -10,17 +10,17 @@ ENTRY(Reset_Handler)
 /* Specify the memory areas */
 MEMORY
 {
-  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 0x10000 /*64K*/
-  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 0x02000 /*8K*/
+  FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 0x8000 /*32K*/
+  RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 0x2000 /*8K*/
 }
  
 /* define stack size and heap size here */
-stack_size = 1024;
-heap_size = 256;
+stack_min_size = 2048;
+heap_size = 2048;
+/* 8K - 2K - 2K leaves 4K for BSS and such. Plenty! */
  
 /* define beginning and ending of stack */
 _stack_start = ORIGIN(RAM)+LENGTH(RAM);
-_stack_end = _stack_start - stack_size;
 _estack = _stack_start; /* the startup file wants this symbol */
  
 /* Define output sections */
@@ -91,14 +91,17 @@ SECTIONS
     {
         _heap_start = .;
         . = . + heap_size;
+       _heap_end = .;
     } > RAM
  
     . = ALIGN(4);
-    . = _stack_end;
+    _stack_end = .;
+    _stack_size = _stack_start - _stack_end;
     .stack :
     {
-        . = . + stack_size;
+        . = . + _stack_size;
     } > RAM
+    ASSERT(_stack_size >= stack_min_size, "Not enough room for stack.")
  
 	/* Remove information from the standard libraries */
 	
