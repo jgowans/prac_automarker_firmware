@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stm32f0xx.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
 
 #include <sys/stat.h> // required for fstat
 
@@ -25,9 +27,11 @@ int _lseek(int file, int ptr, int dir) {
 
 int _read(int file, char *buf, int len) {
   int i = 0;
-  while(i < 1) {
+  while(i < len) {
     while((USART1->ISR & USART_ISR_RXNE) == 0); // hange while receive IS empty
     buf[i++] = USART1->RDR;
+    //_write(0, &buf[i-1], 1);
+    printf("%X", buf[i-1]);
   }
   return len;
 }
@@ -54,8 +58,15 @@ void *_sbrk(int incr) {
     heap_end = &_heap_start;
   }
   prev_heap_end = heap_end;
+
+  // check for heap overrun
   if (heap_end + incr >= &_heap_end) {
     _write (1, "Heap and stack collision\n", 25);
+    for(;;);
+  }
+  // check for heap underrun
+  if (heap_end + incr < &_heap_start) {
+    write(1, "Heap under run\n", 15);
     for(;;);
   }
 

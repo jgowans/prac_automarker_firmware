@@ -6,7 +6,7 @@
 #define BUFFER_SIZE 64
 
 // static function prototypes
-static void process_command(uint8_t *rx_buffer);
+static uint32_t process_command(uint8_t *rx_buffer);
 
 void serial_terminal_init(void) {
   // disable buffering to prevent having to send a newline to flush
@@ -46,8 +46,8 @@ void USART1_IRQHandler(void) {
   if (received_char == '\r') { //"Enter"
     write(0, "\n", 1); 
     rx_buffer[buffer_pointer] = 0; // finalise the string by terminating it with a 0
-    process_command(rx_buffer);
     buffer_pointer = 0; // ready to buffer fresh string
+    process_command(rx_buffer);
     write(0, "> ", 2);  // ready for next command
   } else if (received_char == '\b') { //backspace
     rx_buffer[--buffer_pointer] = 0; // clear the previous char
@@ -56,13 +56,27 @@ void USART1_IRQHandler(void) {
   else { // new char arrived. Add it to the buffer
     rx_buffer[buffer_pointer++] = received_char;
   }
+  // check for impending overrun
+/*  if (buffer_pointer >= BUFFER_SIZE) {
+    printf("ERROR 3: buffer overrun\r\n");
+    buffer_pointer = 0;
+    printf("> ");  // ready for next command
+  }*/
 }
 
-static void process_command(uint8_t *rx_buffer) {
-  if (strcmp("PING", rx_buffer) == 0) {
-    printf("PONG!\r\n");
+static uint32_t process_command(uint8_t *rx_buffer) {
+  uint8_t instruction[BUFFER_SIZE];
+  uint32_t opcode;
+  if (sscanf(rx_buffer, "%s %i %i", instruction, &opcode) != 2) {
+    printf("ERROR 1: invalid command syntax: \"%s\"\r\n", rx_buffer);
+    return -1;
+  }
+  if (strcmp("PING", instruction) == 0) {
+    for (uint32_t i = 0; i < opcode; i++) {
+      printf("PONG!\r\n");
+    }
   } else {
-    printf("ERROR 1: no such command: \"%s\"\r\n", rx_buffer);
+    printf("ERROR 2: no such command: \"%s\"\r\n", rx_buffer);
   }
 }
 

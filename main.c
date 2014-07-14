@@ -14,5 +14,16 @@ void main(void) {
   serial_terminal_init();
   printf("System initialised. Waiting for input\r\n");
   printf("> ");
+  uint8_t *inst[32];
+  uint32_t num;
+  for(;;) {
+  }
+}
+
+void WWDG_IRQHandler(void) {
+  for(;;);
+}
+
+void HardFault_Handler(void) {
   for(;;);
 }

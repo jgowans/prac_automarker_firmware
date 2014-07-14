@@ -20,7 +20,7 @@ heap_size = 2048;
 /* 8K - 2K - 2K leaves 4K for BSS and such. Plenty! */
  
 /* define beginning and ending of stack */
-_stack_start = ORIGIN(RAM)+LENGTH(RAM);
+_stack_start = ORIGIN(RAM) + LENGTH(RAM) - 1;
 _estack = _stack_start; /* the startup file wants this symbol */
  
 /* Define output sections */
@@ -90,18 +90,18 @@ SECTIONS
     .heap :
     {
         _heap_start = .;
-        . = . + heap_size;
+        . += heap_size;
        _heap_end = .;
     } > RAM
  
     . = ALIGN(4);
     _stack_end = .;
     _stack_size = _stack_start - _stack_end;
+    ASSERT(_stack_size >= stack_min_size, "Not enough room for stack.")
     .stack :
     {
         . = . + _stack_size;
     } > RAM
-    ASSERT(_stack_size >= stack_min_size, "Not enough room for stack.")
  
 	/* Remove information from the standard libraries */
 	
