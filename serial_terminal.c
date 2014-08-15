@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "gpio.h"
 
 #define BUFFER_SIZE 64
 
@@ -49,19 +50,21 @@ void USART1_IRQHandler(void) {
     buffer_pointer = 0; // ready to buffer fresh string
     process_command(rx_buffer);
     write(0, "> ", 2);  // ready for next command
-  } else if (received_char == '\b') { //backspace
-    rx_buffer[--buffer_pointer] = 0; // clear the previous char
-    write(0, " \b", 3); // overwrite with space and then move back
+  } else if (received_char == '\b') { //backspac
+    if (buffer_pointer > 0) {
+      rx_buffer[--buffer_pointer] = 0; // clear the previous char
+      write(0, " \b", 3); // overwrite with space and then move back
+    }
   }
   else { // new char arrived. Add it to the buffer
     rx_buffer[buffer_pointer++] = received_char;
   }
   // check for impending overrun
-/*  if (buffer_pointer >= BUFFER_SIZE) {
+  if (buffer_pointer >= BUFFER_SIZE) {
     printf("ERROR 3: buffer overrun\r\n");
     buffer_pointer = 0;
-    printf("> ");  // ready for next command
-  }*/
+    write(0, "> ", 2);  // ready for next command
+  }
 }
 
 static uint32_t process_command(uint8_t *rx_buffer) {
@@ -75,6 +78,25 @@ static uint32_t process_command(uint8_t *rx_buffer) {
     for (uint32_t i = 0; i < opcode; i++) {
       printf("PONG!\r\n");
     }
+  } 
+  else if (strcmp("GPIO_READ", instruction) == 0) {
+    printf("INPUTS: %X\r\n", gpio_read());
+  } 
+  else if (strcmp("GPIO_SET", instruction) == 0) {
+    gpio_pin_set(opcode);
+    printf("OK\r\n");
+  } 
+  else if (strcmp("GPIO_CLEAR", instruction) == 0) {
+    gpio_pin_clear(opcode);
+    printf("OK\r\n");
+  } 
+  else if (strcmp("GPIO_HIGHZ", instruction) == 0) {
+    gpio_pin_highz(opcode);
+    printf("OK\r\n");
+  } 
+  else if (strcmp("NRST", instruction) == 0) {
+    gpio_nrst_set((int8_t)opcode);
+    printf("OK\r\n");
   } else {
     printf("ERROR 2: no such command: \"%s\"\r\n", rx_buffer);
   }

@@ -18,12 +18,14 @@ OBJS = \
        startup_stm32f051.o \
        system_stm32f0xx.o \
        serial_terminal.o \
+       gpio.o\
        syscalls.o
 
 main.elf: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o main.elf $(OBJS)
 	
-main.o: main.c serial_terminal.c serial_terminal.h
+main.o: main.c serial_terminal.c serial_terminal.h gpio.c gpio.h
+gpio.o: gpio.c gpio.h
 serial_terminal.o: serial_terminal.c serial_terminal.h
 system_stm32f0xx.o: system_stm32f0xx.c
 startup_stm32f051.o: startup_stm32f051.s

@@ -6,12 +6,17 @@
 #include <stdlib.h>
 
 #include "serial_terminal.h"
+#include "gpio.h"
 
 extern int write(int, char*, int);
 
 void main(void) {
   // initialise USART and enable interrupt which will process incomming chars
   serial_terminal_init();
+  printf("Serial Terminal Initialised\r\n");
+  gpio_init_inputs();
+  gpio_init_outputs();
+  gpio_init_nrst();
   printf("System initialised. Waiting for input\r\n");
   printf("> ");
   uint8_t *inst[32];
