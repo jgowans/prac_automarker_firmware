@@ -19,6 +19,7 @@ OBJS = \
        system_stm32f0xx.o \
        serial_terminal.o \
        gpio.o\
+       timing.o \
        syscalls.o
 
 main.elf: $(OBJS)

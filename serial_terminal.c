@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "gpio.h"
+#include "timing.h"
 
 #define BUFFER_SIZE 64
 
@@ -92,6 +93,11 @@ static uint32_t process_command(uint8_t *rx_buffer) {
   } 
   else if (strcmp("GPIO_HIGHZ", instruction) == 0) {
     gpio_pin_highz(opcode);
+    printf("OK\r\n");
+  } 
+  else if (strcmp("PATTERN_TIMING", instruction) == 0) {
+    uint32_t cycles = timing_between_patterns((uint8_t)(opcode & 0xFF), (uint8_t)((opcode >> 8) & 0xFF));
+    printf("Off time cycles: %i\r\n", cycles);
     printf("OK\r\n");
   } 
   else if (strcmp("NRST", instruction) == 0) {
