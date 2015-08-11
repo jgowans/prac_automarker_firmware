@@ -7,6 +7,7 @@
 
 #include "serial_terminal.h"
 #include "gpio.h"
+#include "dac.h"
 
 extern int write(int, char*, int);
 
@@ -17,6 +18,7 @@ void main(void) {
   gpio_init_inputs();
   gpio_init_outputs();
   gpio_init_nrst();
+  dac_init();
   printf("System initialised. Waiting for input\r\n");
   printf("> ");
   uint8_t *inst[32];

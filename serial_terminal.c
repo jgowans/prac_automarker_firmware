@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "gpio.h"
 #include "timing.h"
+#include "dac.h"
 
 #define BUFFER_SIZE 64
 
@@ -85,27 +86,43 @@ static uint32_t process_command(uint8_t *rx_buffer) {
   } 
   else if (strcmp("GPIO_SET", instruction) == 0) {
     gpio_pin_set(opcode);
-    printf("OK\r\n");
   } 
   else if (strcmp("GPIO_CLEAR", instruction) == 0) {
     gpio_pin_clear(opcode);
-    printf("OK\r\n");
   } 
   else if (strcmp("GPIO_HIGHZ", instruction) == 0) {
     gpio_pin_highz(opcode);
-    printf("OK\r\n");
   } 
   else if (strcmp("PATTERN_TIMING", instruction) == 0) {
     uint32_t cycles = timing_between_patterns((uint8_t)(opcode & 0xFF), (uint8_t)((opcode >> 8) & 0xFF));
-    printf("Off time cycles: %i\r\n", cycles);
-    printf("OK\r\n");
+    printf("TIMING: %i\r\n", cycles);
+  } 
+  else if (strcmp("PATTERN_TIMING", instruction) == 0) {
+    // pattern 0 must be the LSB of the opcode
+    uint32_t cycles = timing_between_patterns((uint8_t)(opcode & 0xFF), (uint8_t)((opcode >> 8) & 0xFF));
+    printf("TIMING: %i\r\n", cycles);
+  } 
+  else if (strcmp("PATTERN_TRANSITION", instruction) == 0) {
+    uint32_t cycles = timing_transition((uint8_t)(opcode & 0xFF), (uint8_t)((opcode >> 8) & 0xFF));
+    printf("TRANSITION: %i\r\n", cycles);
   } 
   else if (strcmp("NRST", instruction) == 0) {
     gpio_nrst_set((int8_t)opcode);
-    printf("OK\r\n");
-  } else {
+  } 
+  else if (strcmp("DAC", instruction) == 0) {
+    dac_write((int8_t)opcode);
+  } 
+  else if (strcmp("DAC_SELECT", instruction) == 0) {
+        // operand0 is channel (0 or 1), operand 1 is state (0 or 1)
+        dac_drive_select(((uint8_t)((opcode >> 8) & 0xFF)), ((uint8_t)((opcode) & 0xFF)));
+  } 
+  else if (strcmp("DAC_BUFFER", instruction) == 0) {
+        dac_buffer(opcode);
+  } 
+  else {
     printf("ERROR 2: no such command: \"%s\"\r\n", rx_buffer);
+    return -1; // prevent printing of OK
   }
+  printf("OK\r\n");
 }
-
 
