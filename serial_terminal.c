@@ -51,7 +51,6 @@ void USART1_IRQHandler(void) {
     rx_buffer[buffer_pointer] = 0; // finalise the string by terminating it with a 0
     buffer_pointer = 0; // ready to buffer fresh string
     process_command(rx_buffer);
-    write(0, "> ", 2);  // ready for next command
   } else if (received_char == '\b') { //backspac
     if (buffer_pointer > 0) {
       rx_buffer[--buffer_pointer] = 0; // clear the previous char
@@ -65,7 +64,6 @@ void USART1_IRQHandler(void) {
   if (buffer_pointer >= BUFFER_SIZE) {
     printf("ERROR 3: buffer overrun\r\n");
     buffer_pointer = 0;
-    write(0, "> ", 2);  // ready for next command
   }
 }
 
