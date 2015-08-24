@@ -7,30 +7,29 @@
 
 #include "serial_terminal.h"
 #include "gpio.h"
-#include "dac.h"
+#include "mcp4921.h"
 
 extern int write(int, char*, int);
 
-void main(void) {
-  // initialise USART and enable interrupt which will process incomming chars
-  serial_terminal_init();
-  printf("Serial Terminal Initialised\r\n");
-  gpio_init_inputs();
-  gpio_init_outputs();
-  gpio_init_nrst();
-  dac_init();
-  printf("System initialised. Waiting for input\r\n");
-  printf("> ");
-  uint8_t *inst[32];
-  uint32_t num;
-  for(;;) {
-  }
+int main(void) {
+    // initialise USART and enable interrupt which will process incomming chars
+    serial_terminal_init();
+    printf("Serial Terminal Initialised\r\n");
+    gpio_init_inputs();
+    gpio_init_outputs();
+    gpio_init_nrst();
+    mcp4921_init();
+    printf("An int is %u bytes big\n", sizeof(int));
+    printf("System initialised. Waiting for input\r\n");
+    for(;;) {
+    }
+    return 0;
 }
 
 void WWDG_IRQHandler(void) {
-  for(;;);
+    for(;;);
 }
 
 void HardFault_Handler(void) {
-  for(;;);
+    for(;;);
 }

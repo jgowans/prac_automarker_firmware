@@ -1,7 +1,7 @@
 CC = arm-none-eabi-gcc
 DEVICE_INCLUDES = -I ./Libraries/CMSIS/Device/ST/STM32F0xx/Include
 ARM_INCLUDES = -I ./Libraries/CMSIS/Include
-CFLAGS = ${DEVICE_INCLUDES} ${ARM_INCLUDES} -mcpu=cortex-m0 -mthumb -g -std=c99
+CFLAGS = ${DEVICE_INCLUDES} ${ARM_INCLUDES} -Wall -mcpu=cortex-m0 -mthumb -g -std=c99
 
 AS = arm-none-eabi-as
 ASFLAGS = -mcpu=cortex-m0 -mthumb -g
@@ -18,15 +18,15 @@ OBJS = \
        startup_stm32f051.o \
        system_stm32f0xx.o \
        serial_terminal.o \
-       gpio.o\
-       dac.o\
+       gpio.o \
+       mcp4921.o \
        timing.o \
        syscalls.o
 
 main.elf: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o main.elf $(OBJS)
 	
-main.o: main.c serial_terminal.c serial_terminal.h gpio.c gpio.h
+main.o: main.c serial_terminal.c serial_terminal.h gpio.c gpio.h mcp4921.c mcp4921.h
 gpio.o: gpio.c gpio.h
 serial_terminal.o: serial_terminal.c serial_terminal.h
 system_stm32f0xx.o: system_stm32f0xx.c
